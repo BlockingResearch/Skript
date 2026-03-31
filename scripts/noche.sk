@@ -1,0 +1,66 @@
+# ----------------------------
+#
+# Sistema de noche simple
+# Creditos al equipo de Blocking Labs (dsc.gg/blockings, dub.sh/blockings), Gabinus (@_gabinus_, dub.sh/gabinus) y Blocking Research.
+# PORFAVOR DAR CRÉDITOS SI USAS ESTE CÓDIGO O PARTES DE ÉL, GRACIAS! ❤
+#
+# Addons necesarios: Skript (Recomendado 2.6+) 
+#
+# ----------------------------
+
+#
+# Script para la modalidad de noche de Blocking Games 2.
+# Hecho por Gabinus
+#
+
+# OJO: EQUIPO 1 ES EL EQUIPO DE LOS JUGADORES
+command /noche:
+    permission: op
+    trigger:
+        execute console command "lucesoff"
+
+        wait 5 seconds
+
+        execute console command "team modify 1 friendlyFire true"
+        execute console command "playsound minecraft:noche2 master @a ~ ~ ~ 1 1 1" # REEMPLAZA "minecraft:noche2" CON EL NOMBRE DE TU SONIDO PERSONALIZADO
+        loop all players:
+            set {_chance} to a random integer between 1 and 2
+            if {_chance} is 1:
+                give loop-player 1 glass bottle named "&l&fRefresco"
+            else if {_chance} is 2:
+                give loop-player 1 iron shovel named "&l&fTenedor"
+
+command /nocheoff:
+    permission: op
+    trigger:
+        execute console command "stopsound @a"
+
+        wait 1 second
+
+        execute console command "luceson"
+
+        wait 5 seconds
+        
+        execute console command "clear @a glass_bottle"
+        execute console command "clear @a iron_shovel"
+        execute console command "team modify 1 friendlyFire false" 
+
+on left click:
+    if player's tool is a glass bottle named "&l&fRefresco":
+        set player's tool to wooden sword named "&fBotella rota"
+        execute console command "playsound squid:sfx.bottle_break ambient @a ~ ~ ~ 1 1 1"
+        execute console command "playsound jeg:hit.metal ambient @a ~ ~ ~ 1 1 1"
+
+# TIRAR BOTELLA
+
+on right click:
+    if player's tool is a glass bottle named "&l&fRefresco":
+        set {_target} to target entity of player
+        if {_target} is a player:
+            if distance between player and {_target} <= 15:
+                remove 1 glass bottle named "&l&fRefresco" from player's inventory
+                set {_damage} to a random integer between 4 and 8
+                damage {_target} by {_damage}
+                execute console command "playsound squid:sfx.bottle_break ambient @a ~ ~ ~ 1 1 1"
+    else:
+        stop
