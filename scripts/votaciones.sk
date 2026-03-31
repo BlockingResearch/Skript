@@ -1,0 +1,73 @@
+# ----------------------------
+#
+# Sistema simple de votaciones
+# Creditos al equipo de Blocking Labs (dsc.gg/blockings, dub.sh/blockings), Gabinus (@_gabinus_, dub.sh/gabinus) y Blocking Research.
+# PORFAVOR DAR CRÉDITOS SI USAS ESTE CÓDIGO O PARTES DE ÉL, GRACIAS! ❤
+#
+# Addons necesarios: Skript (Recomendado 2.6+) 
+#
+# ----------------------------
+
+#
+# Configuración para Blocking Games 2 de los botones de votación
+# Hecho por Gabinus
+# Actualizado: 18 de Arbil de 2025
+#
+# TODO: Hacer que los jugadores sin op puedan pulsar los botones (WorldGuard)
+
+variables:
+    {votos::spruce} = 0
+    {votos::oak} = 0
+    {votacion.activa} = false
+    {votantes::*} = false
+
+command /votasi:
+    permission: op
+    permission message: "&7[&c&lX&7]&c No tienes permiso para usar este comando"
+    trigger:
+        set {votacion.activa} to true
+        delete {votantes::*}  
+        send "&aHas iniciado la votacion."
+
+on right click on spruce button:
+    if {votacion.activa} is true:
+        set player's leggings to iron leggings
+        if {votantes::%player%} is not set:
+            add 1 to {votos::spruce}
+            set {votantes::%player%} to true
+
+
+
+on right click on oak button:
+    if {votacion.activa} is true:
+        set {_leggings} to chainmail leggings
+        enchant {_leggings} with protection 1
+        set player's leggings to {_leggings}
+        if {votantes::%player%} is not set:
+            add 1 to {votos::oak}
+            set {votantes::%player%} to true
+
+command /votano:
+    permission: op
+    permission message: "&7[&c&lX&7]&c No tienes permiso para usar este comando"
+    trigger:
+        delete {votos::*}
+        set {votacion.activa} to false
+        loop all players:
+            send action bar "&7&lVotacion finalizada" to loop-player
+
+every 2 seconds:
+    if {votacion.activa} is true:
+        loop all players:
+            set {_spruceVotes} to {votos::spruce} ? 0
+            set {_oakVotes} to {votos::oak} ? 0
+            
+            if {_spruceVotes} > {_oakVotes}:
+                send action bar "&c&l%{_spruceVotes}% &7| &9%{_oakVotes}%" to loop-player
+            else if {_oakVotes} > {_spruceVotes}:
+                send action bar "&c%{_spruceVotes}% &7| &9&l%{_oakVotes}%" to loop-player
+            else:
+                if {_spruceVotes} is not 0:
+                    send action bar "&c&l%{_spruceVotes}% &7| &9&l%{_oakVotes}%" to loop-player
+                else:
+                    send action bar "&c%{_spruceVotes}% &7| &9%{_oakVotes}%" to loop-player
